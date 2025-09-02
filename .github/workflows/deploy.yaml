@@ -1,0 +1,31 @@
+name: Deploy changes
+
+on:
+  pull_request:
+    types: [ closed ]
+    branches: [ main ]
+    paths: [ '**.json' ]
+
+env:
+  TARGET_CLUSTER: ${{secrets.TARGET_CLUSTER}}
+  TARGET_KEY_ID: ${{secrets.TARGET_KEY_ID}}
+  TARGET_SECRET: ${{secrets.TARGET_SECRET}}
+
+jobs:
+  deploy:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Deploy resources
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        files=$(gh pr view ${{ github.event.pull_request.number }} --json files --jq '.files[].path|select(endswith(".json"))')
+        echo $files
+        ./deploy.sh "$files"

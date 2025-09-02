@@ -17,21 +17,35 @@ fi
 
 echo "Extracting resources for tag $TAG_KEY:$TAG_VALUE"
 
+get_endpoint() {
+    case "$1" in
+        "workflow") echo "metadata/workflow" ;;
+        "task") echo "metadata/taskdefs" ;;
+        "user-form") echo "human/template" ;;
+        "webhook") echo "metadata/webhook" ;;
+        "scheduler") echo "scheduler/schedules" ;;
+        "ai-prompt") echo "prompts" ;;
+        "event-handler") echo "event" ;;
+    esac
+}
+
 extract_resources() {
-    local endpoint="$1"
-    local resource_type="$2"
+    local resource_type="$1"
+    endpoint=$(get_endpoint "$resource_type")
 
     echo "Extracting ${resource_type}s.."
-    mkdir -p "$resource_type"
+    mkdir -p "$resource_type" # Create directory structure if it doesn't already exist
 
     if [[ "$resource_type" == "workflow" || "$resource_type" == "task" ]]; then
-        local url="$SOURCE_CLUSTER/$endpoint?tagKey=$TAG_KEY&tagValue=$TAG_VALUE"
+        # Workflows and tasks support server-side filtering for tagged resources
+        local url="$SOURCE_CLUSTER/$endpoint?tagKey=$TAG_KEY&tagValue=$TAG_VALUE&metadata=true"
         curl -sS "$url" -H "X-Authorization: $TOKEN" | jq -c '.[]' | while read -r resource; do
             name=$(echo "$resource" | jq -r '.name')
             echo "$resource" | jq '.' > "$resource_type/${name}.json"
             echo "Saved $resource_type: $resource_type/${name}.json"
         done
     else
+        # Other resource types need to use client-side filtering
         curl -sS "$SOURCE_CLUSTER/$endpoint" -H "X-Authorization: $TOKEN" | jq -c --arg tagKey "$TAG_KEY" --arg tagValue "$TAG_VALUE" '.[] | select(.tags // [] | map(select(.key == $tagKey and .value == $tagValue)) | length > 0)' | while read -r resource; do
             name=$(echo "$resource" | jq -r '.name')
             echo "$resource" | jq '.' > "$resource_type/${name}.json"
@@ -42,12 +56,7 @@ extract_resources() {
     echo "Finished extracting ${resource_type}s"
 }
 
-extract_resources "metadata/workflow" "workflow"
-extract_resources "metadata/taskdefs" "task"
-extract_resources "human/template" "user-form"
-extract_resources "metadata/webhook" "webhook"
-extract_resources "scheduler/schedules" "scheduler"
-extract_resources "prompts" "ai-prompt"
-extract_resources "event" "event-handler"
+resource_types=(workflow task "user-form" webhook scheduler "ai-prompt" "event-handler")
+for rt in "${resource_types[@]}"; do extract_resources "$rt"; done
 
 echo "Resource extraction completed"

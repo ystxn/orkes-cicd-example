@@ -1,0 +1,39 @@
+name: Deploy changes
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+env:
+  TARGET_CLUSTER: ${{secrets.TARGET_CLUSTER}}
+  TARGET_KEY_ID: ${{secrets.TARGET_KEY_ID}}
+  TARGET_SECRET: ${{secrets.TARGET_SECRET}}
+
+jobs:
+  deploy:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Get changed JSON files
+      id: changed-files
+      run: |
+        BASE_SHA="${{ github.event.pull_request.base.sha }}"
+        HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+        echo "Comparing $BASE_SHA to $HEAD_SHA"
+
+        CHANGED_JSON_FILES=$(git diff --name-only --diff-filter=AM "$BASE_SHA" "$HEAD_SHA" | grep '\.json$' || echo "")
+        echo "$CHANGED_JSON_FILES"
+
+        echo "json_files<<EOF" >> $GITHUB_OUTPUT
+        echo "$CHANGED_JSON_FILES" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+
+    - name: Process JSON files
+      run: ./deploy.sh "${{ steps.changed-files.outputs.json_files }}"

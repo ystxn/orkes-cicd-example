@@ -25,7 +25,7 @@ extract_resources() {
     mkdir -p "$resource_type"
 
     if [[ "$resource_type" == "workflow" || "$resource_type" == "task" ]]; then
-        local url="$SOURCE_CLUSTER/$endpoint?tagKey=$TAG_KEY&tagValue=$TAG_VALUE"
+        local url="$SOURCE_CLUSTER/$endpoint?tagKey=$TAG_KEY&tagValue=$TAG_VALUE&metadata=true"
         curl -sS "$url" -H "X-Authorization: $TOKEN" | jq -c '.[]' | while read -r resource; do
             name=$(echo "$resource" | jq -r '.name')
             echo "$resource" | jq '.' > "$resource_type/${name}.json"

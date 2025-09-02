@@ -19,7 +19,7 @@ There are various methods of achieving the same goal and this example has select
 - `TARGET_SECRET`
 
 ## Trigger
-Start the `init-pr` action with these inputs:
+[Start the Initialise Pull Request action](../../actions/workflows/init-pr.yaml) with these inputs:
 - `TAG_KEY` e.g. `app`
 - `TAG_VALUE` e.g. `ecommerce`
 - `DESCRIPTION` e.g. `Deploy new ecommerce app`

@@ -14,29 +14,55 @@ on:
       TAG_VALUE:
         description: "Tag Value"
         required: true
-        default: "demo"
-
-env:
-  SOURCE_CLUSTER: ${{secrets.SOURCE_CLUSTER}}
-  SOURCE_KEY_ID: ${{secrets.SOURCE_KEY_ID}}
-  SOURCE_SECRET: ${{secrets.SOURCE_SECRET}}
-  DESCRIPTION: ${{ inputs.DESCRIPTION }}
-  TAG_KEY: ${{ inputs.TAG_KEY }}
-  TAG_VALUE: ${{ inputs.TAG_VALUE }}
+        default: "ecommerce"
+      SOURCE_ENV:
+        description: "Promote resources from this environment"
+        type: choice
+        required: true
+        options: [dev, uat]
+        default: dev
 
 jobs:
   init_pr:
     runs-on: ubuntu-latest
+    environment: ${{ inputs.SOURCE_ENV }}
+    permissions:
+      contents: write
+      pull-requests: write
+
     steps:
+    - name: Derive target environment
+      id: derive
+      env:
+        SOURCE_ENV: ${{ inputs.SOURCE_ENV }}
+      run: |
+        set -euo pipefail
+        case "${SOURCE_ENV}" in
+          dev)  TARGET_ENV="uat"  ;;
+          uat)  TARGET_ENV="prod" ;;
+          *)    echo "Invalid SOURCE_ENV: ${SOURCE_ENV}"; exit 1 ;;
+        esac
+        echo "TARGET_ENV=${TARGET_ENV}" >> "$GITHUB_ENV"
+
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
+        fetch-depth: 0
+        branch: env/${{ env.TARGET_ENV }}
 
     - name: Extract resources by tag
+      env:
+        SOURCE_CLUSTER: ${{ secrets.CLUSTER }}
+        SOURCE_KEY_ID: ${{ secrets.KEY_ID }}
+        SOURCE_SECRET: ${{ secrets.SECRET }}
+        TAG_KEY: ${{ inputs.TAG_KEY }}
+        TAG_VALUE: ${{ inputs.TAG_VALUE }}
       run: ./extract-resources-by-tag.sh
 
     - name: Create branch and pull request
-      run: ./create-pr.sh
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        DESCRIPTION: ${{ inputs.DESCRIPTION }}
+        SOURCE_ENV: ${{ inputs.SOURCE_ENV }}
+      run: ./create-pr.sh

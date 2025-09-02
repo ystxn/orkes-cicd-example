@@ -1,0 +1,45 @@
+name: Deploy Changes
+
+on:
+  pull_request:
+    types: [ closed ]
+    branches: [ env/* ]
+    paths: [ '**.json' ]
+
+env:
+  TARGET_CLUSTER: ${{secrets.TARGET_CLUSTER}}
+  TARGET_KEY_ID: ${{secrets.TARGET_KEY_ID}}
+  TARGET_SECRET: ${{secrets.TARGET_SECRET}}
+
+jobs:
+  detect:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    outputs:
+      env_name: ${{ steps.parse.outputs.env_name }}
+
+    steps:
+    - name: Derive environment
+      id: parse
+      run: |
+        base_ref="${{ github.event.pull_request.base.ref }}"
+        env_name="${base_ref#env/}"
+        echo "env_name=$env_name" >> "$GITHUB_OUTPUT"
+
+  deploy:
+    needs: detect
+    runs-on: ubuntu-latest
+    environment: ${{ needs.detect.outputs.env_name }}
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 2
+        branch: ${{ github.event.pull_request.base.ref }}
+
+    - name: Deploy resources
+      env:
+        TARGET_CLUSTER: ${{ secrets.CLUSTER }}
+        TARGET_KEY_ID: ${{ secrets.KEY_ID }}
+        TARGET_SECRET: ${{ secrets.SECRET }}
+      run: files=$(git diff --name-status HEAD~1 HEAD|grep '\.json$') ./deploy.sh

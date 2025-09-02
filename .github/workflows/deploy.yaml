@@ -35,5 +35,5 @@ jobs:
         echo "$CHANGED_JSON_FILES" >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
 
-    - name: Process JSON files
+    - name: Deploy resources
       run: ./deploy.sh "${{ steps.changed-files.outputs.json_files }}"

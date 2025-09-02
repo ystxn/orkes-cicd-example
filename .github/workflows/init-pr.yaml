@@ -3,8 +3,12 @@ name: Initialise Pull Request
 on:
   workflow_dispatch:
     inputs:
-      TAG_NAME:
-        description: "Tag Name"
+      DESCRIPTION:
+        description: "Describe the changes"
+        required: true
+        default: "Deploy new ecommerce changes"
+      TAG_KEY:
+        description: "Tag Key"
         required: true
         default: "app"
       TAG_VALUE:
@@ -16,6 +20,9 @@ env:
   SOURCE_CLUSTER: ${{secrets.SOURCE_CLUSTER}}
   SOURCE_KEY_ID: ${{secrets.SOURCE_KEY_ID}}
   SOURCE_SECRET: ${{secrets.SOURCE_SECRET}}
+  DESCRIPTION: ${{ inputs.DESCRIPTION }}
+  TAG_KEY: ${{ inputs.TAG_KEY }}
+  TAG_VALUE: ${{ inputs.TAG_VALUE }}
 
 jobs:
   build:
@@ -23,6 +30,13 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Extract resources by tag
-      run: ./extract-resources-by-tag.sh ${{ inputs.TAG_NAME }} ${{ inputs.TAG_VALUE }}
+      run: ./extract-resources-by-tag.sh
+
+    - name: Create branch and pull request
+      run: ./create-pr.sh
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

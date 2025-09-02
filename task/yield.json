@@ -1,0 +1,32 @@
+{
+  "createTime": 1756353855670,
+  "updateTime": 1756353855670,
+  "createdBy": "yongsheng.tan@orkes.io",
+  "updatedBy": "yongsheng.tan@orkes.io",
+  "name": "yield",
+  "description": "yield",
+  "retryCount": 3,
+  "timeoutSeconds": 0,
+  "inputKeys": [],
+  "outputKeys": [],
+  "timeoutPolicy": "ALERT_ONLY",
+  "retryLogic": "FIXED",
+  "retryDelaySeconds": 60,
+  "responseTimeoutSeconds": 60,
+  "concurrentExecLimit": 0,
+  "inputTemplate": {},
+  "rateLimitPerFrequency": 0,
+  "rateLimitFrequencyInSeconds": 1,
+  "ownerEmail": "yongsheng.tan@orkes.io",
+  "pollTimeoutSeconds": 0,
+  "backoffScaleFactor": 1,
+  "totalTimeoutSeconds": 0,
+  "enforceSchema": false,
+  "overwriteTags": true,
+  "tags": [
+    {
+      "key": "app",
+      "value": "ecommerce"
+    }
+  ]
+}

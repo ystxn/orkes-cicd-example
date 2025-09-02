@@ -1,0 +1,26 @@
+name: Deploy changes
+
+on:
+  pull_request:
+    types: [ closed ]
+    branches: [ main ]
+    paths: [ '**.json' ]
+
+env:
+  TARGET_CLUSTER: ${{secrets.TARGET_CLUSTER}}
+  TARGET_KEY_ID: ${{secrets.TARGET_KEY_ID}}
+  TARGET_SECRET: ${{secrets.TARGET_SECRET}}
+
+jobs:
+  deploy:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 2
+
+    - name: Deploy resources
+      run: files=$(git diff --name-status HEAD~1 HEAD|grep '\.json$') ./deploy.sh

@@ -14,7 +14,7 @@ on:
       TAG_VALUE:
         description: "Tag Value"
         required: true
-        default: "demo"
+        default: "ecommerce"
 
 env:
   SOURCE_CLUSTER: ${{secrets.SOURCE_CLUSTER}}

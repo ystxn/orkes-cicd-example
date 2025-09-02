@@ -14,29 +14,55 @@ on:
       TAG_VALUE:
         description: "Tag Value"
         required: true
-        default: "demo"
-
-env:
-  SOURCE_CLUSTER: ${{secrets.SOURCE_CLUSTER}}
-  SOURCE_KEY_ID: ${{secrets.SOURCE_KEY_ID}}
-  SOURCE_SECRET: ${{secrets.SOURCE_SECRET}}
-  DESCRIPTION: ${{ inputs.DESCRIPTION }}
-  TAG_KEY: ${{ inputs.TAG_KEY }}
-  TAG_VALUE: ${{ inputs.TAG_VALUE }}
+        default: "ecommerce"
 
 jobs:
+  detect:
+    runs-on: ubuntu-latest
+    outputs:
+      SOURCE_ENV: ${{ steps.parse.outputs.SOURCE_ENV }}
+      TARGET_ENV: ${{ steps.parse.outputs.TARGET_ENV }}
+
+    steps:
+    - name: Derive environments
+      id: parse
+      run: |
+        base_ref="${{ github.ref_name }}"
+        TARGET_ENV="${base_ref#env/}"
+        echo "TARGET_ENV=$TARGET_ENV" >> "$GITHUB_OUTPUT"
+        case "${TARGET_ENV}" in
+          uat)  SOURCE_ENV="dev"  ;;
+          prod)  SOURCE_ENV="uat" ;;
+        esac
+        echo "SOURCE_ENV=${SOURCE_ENV}" >> "$GITHUB_OUTPUT"
+
   init_pr:
     runs-on: ubuntu-latest
+    needs: detect
+    environment: ${{ needs.detect.outputs.SOURCE_ENV }}
+    permissions:
+      contents: write
+      pull-requests: write
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}
+        fetch-depth: 0
 
     - name: Extract resources by tag
+      env:
+        SOURCE_CLUSTER: ${{ secrets.CLUSTER }}
+        SOURCE_KEY_ID: ${{ secrets.KEY_ID }}
+        SOURCE_SECRET: ${{ secrets.SECRET }}
+        TAG_KEY: ${{ inputs.TAG_KEY }}
+        TAG_VALUE: ${{ inputs.TAG_VALUE }}
       run: ./extract-resources-by-tag.sh
 
     - name: Create branch and pull request
-      run: ./create-pr.sh
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        DESCRIPTION: ${{ inputs.DESCRIPTION }}
+        SOURCE_ENV: ${{ needs.detect.outputs.SOURCE_ENV }}
+        TARGET_ENV: ${{ needs.detect.outputs.TARGET_ENV }}
+      run: ./create-pr.sh

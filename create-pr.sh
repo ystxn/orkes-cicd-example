@@ -1,12 +1,18 @@
 #!/bin/bash
 set -euo pipefail
 
+case "${SOURCE_ENV}" in
+    dev)  TARGET_ENV="uat"  ;;
+    uat)  TARGET_ENV="prod" ;;
+esac
+
 git config --local user.email "action@github.com"
 git config --local user.name "GitHub Action"
+git checkout env/$TARGET_ENV
 
-BRANCH_NAME=$(echo "$DESCRIPTION" | tr '[:upper:]' '[:lower:]' | sed 's/ /-/g')
+BRANCH_NAME=feat/$(echo "$DESCRIPTION" | tr '[:upper:]' '[:lower:]' | sed 's/ /-/g')
 echo "Branch name: $BRANCH_NAME"
-git checkout -b "$BRANCH_NAME"
+git checkout -B "$BRANCH_NAME"
 git add .
 
 if git diff --staged --quiet; then
@@ -20,7 +26,5 @@ git push origin "$BRANCH_NAME"
 gh pr create \
     --title "$DESCRIPTION" \
     --body "$DESCRIPTION" \
-    --base main \
+    --base "env/$TARGET_ENV" \
     --head "$BRANCH_NAME"
-
-echo "Successfully created branch '$BRANCH_NAME' and pull request"

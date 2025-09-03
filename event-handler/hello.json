@@ -10,7 +10,8 @@
         "version": 1,
         "correlationId": "",
         "input": {
-          "payload": "${$}"
+          "payload": "${$}",
+          "sv": "sva"
         },
         "taskToDomain": {},
         "priority": 0,

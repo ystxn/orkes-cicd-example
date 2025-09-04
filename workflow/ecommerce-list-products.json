@@ -1,0 +1,50 @@
+{
+  "createTime": 1756199392818,
+  "updateTime": 1756888561654,
+  "name": "ecommerce-list-products",
+  "description": "ecommerce-list products",
+  "version": 1,
+  "tasks": [
+    {
+      "name": "get-products",
+      "taskReferenceName": "get-products_ref",
+      "inputParameters": {
+        "expression": "(() => [\n  {\n      name: \"Apple\",\n      description: \"Fresh red apples, perfect for snacking or baking\",\n      imageId: \"1560806887-1e4cd0b6cbd6\",\n      price: 1.20\n  },\n  {\n      name: \"Orange\",\n      description: \"Juicy oranges packed with vitamin C\",\n      imageId: \"1547514701-42782101795e\",\n      price: 1.30\n  },\n  {\n      name: \"Carrot\",\n      description: \"Crunchy carrots rich in beta-carotene\",\n      imageId: \"1445282768818-728615cc910a\",\n      price: 0.45\n  },\n  {\n      name: \"Banana\",\n      description: \"Ripe yellow bananas full of potassium\",\n      imageId: \"1571771894821-ce9b6c11b08e\",\n      price: 3.2\n  },\n  {\n      name: \"Strawberry\",\n      description: \"Sweet and juicy strawberries, perfect for desserts\",\n      imageId: \"1464965911861-746a04b4bca6\",\n      price: 12.32\n  },\n  {\n      name: \"Grapes\",\n      description: \"Fresh purple grapes, great for snacking\",\n      imageId: \"1423483641154-5411ec9c0ddf\",\n      price: 9.74\n  },\n  {\n      name: \"Pineapple\",\n      description: \"Tropical pineapple with sweet and tangy flavor\",\n      imageId: \"1550258987-190a2d41a8ba\",\n      price: 4.32\n  },\n  {\n      name: \"Mango\",\n      description: \"Exotic mango with tropical sweetness\",\n      imageId: \"1601493700631-2b16ec4b4716\",\n      price: 5.32\n  },\n  {\n      name: \"Kiwi\",\n      description: \"Tangy kiwi fruit rich in vitamin C\",\n      imageId: \"1585059895524-72359e06133a\",\n      price: 8.74\n  },\n  {\n      name: \"Watermelon\",\n      description: \"Refreshing watermelon perfect for summer\",\n      imageId: \"1587049352846-4a222e784d38\",\n      price: 5.14\n  },\n  {\n      name: \"Cherry\",\n      description: \"Sweet red cherries perfect for snacking\",\n      imageId: \"1528821128474-27f963b062bf\",\n      price: 12.88\n  },\n  {\n      name: \"Blueberry\",\n      description: \"Antioxidant-rich blueberries, great for health\",\n      imageId: \"1498557850523-fd3d118b962e\",\n      price: 3.90\n  },\n  {\n      name: \"Lemon\",\n      description: \"Zesty lemons perfect for cooking and drinks\",\n      imageId: \"1571771894821-ce9b6c11b08e\",\n      price: 1.50\n  },\n  {\n      name: \"Lime\",\n      description: \"Tart limes great for cocktails and cooking\",\n      imageId: \"1600891964092-4316c288032e\",\n      price: 0.40\n  },\n  {\n      name: \"Avocado\",\n      description: \"Creamy avocados rich in healthy fats\",\n      imageId: \"1523049673857-eb18f1d7b578\",\n      price: 4.99\n  },\n  {\n      name: \"Papaya\",\n      description: \"Tropical papaya with vibrant orange flesh\",\n      imageId: \"1526318472351-c75fcf070305\",\n      price: 3.68\n  }\n])();",
+        "evaluatorType": "graaljs"
+      },
+      "type": "INLINE",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "onStateChange": {},
+      "permissive": false
+    }
+  ],
+  "inputParameters": [],
+  "outputParameters": {},
+  "failureWorkflow": "",
+  "schemaVersion": 2,
+  "restartable": true,
+  "workflowStatusListenerEnabled": false,
+  "ownerEmail": "yongsheng.tan@orkes.io",
+  "timeoutPolicy": "ALERT_ONLY",
+  "timeoutSeconds": 0,
+  "variables": {},
+  "inputTemplate": {},
+  "enforceSchema": true,
+  "metadata": {},
+  "maskedFields": [],
+  "overwriteTags": true,
+  "tags": [
+    {
+      "key": "app",
+      "value": "ecommerce"
+    }
+  ]
+}

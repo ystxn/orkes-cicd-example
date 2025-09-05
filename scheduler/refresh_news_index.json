@@ -1,0 +1,34 @@
+{
+  "tags": [
+    {
+      "key": "app",
+      "value": "ecommerce"
+    },
+    {
+      "key": "example",
+      "value": "swimlanes"
+    }
+  ],
+  "name": "refresh_news_index",
+  "cronExpression": "0 0 12 ? * MON",
+  "runCatchupScheduleInstances": false,
+  "paused": true,
+  "startWorkflowRequest": {
+    "name": "news-data-indexer",
+    "version": 1,
+    "correlationId": "",
+    "input": {
+      "offset": ""
+    },
+    "taskToDomain": {},
+    "priority": 0
+  },
+  "zoneId": "Asia/Singapore",
+  "createTime": 1756887781747,
+  "updatedTime": 1757050013705,
+  "createdBy": "app:d39091d4-95c6-4513-b4f3-dfaad75e0f08",
+  "updatedBy": "app:d39091d4-95c6-4513-b4f3-dfaad75e0f08",
+  "description": "",
+  "orgId": "0000",
+  "queueMsgId": "refresh_news_index"
+}

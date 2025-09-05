@@ -1,0 +1,30 @@
+{
+  "createTime": 1728952801839,
+  "updateTime": 1757050011255,
+  "createdBy": "ram@orkes.io",
+  "updatedBy": "app:d39091d4-95c6-4513-b4f3-dfaad75e0f08",
+  "name": "question-context-relevance-prompt",
+  "template": "Given the context and question below, determine if the question is relevant to the context. Answer only \"YES\" if the question is relevant or \"NO\" otherwise. Do not include any other text in your answer.\n\n<context>\n${context}\n</context>\n\n<question>\n${question}\n</question>",
+  "description": "Tells if a question is relevant to the context scaascs",
+  "variables": [
+    "question",
+    "context"
+  ],
+  "integrations": [
+    "openai:gpt-4o",
+    "openai:gpt-4o-mini",
+    "anthropic:claude-3-5-sonnet-20240620",
+    "anthropic:claude-3-haiku-20240307"
+  ],
+  "tags": [
+    {
+      "key": "example",
+      "value": "swimlanes"
+    },
+    {
+      "key": "app",
+      "value": "ecommerce"
+    }
+  ],
+  "version": 1
+}

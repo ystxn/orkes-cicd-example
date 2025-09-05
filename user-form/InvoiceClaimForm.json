@@ -1,0 +1,68 @@
+{
+  "createTime": 1757049959332,
+  "updateTime": 1757050015563,
+  "createdBy": "USER:app:d39091d4-95c6-4513-b4f3-dfaad75e0f08",
+  "updatedBy": "USER:app:d39091d4-95c6-4513-b4f3-dfaad75e0f08",
+  "name": "InvoiceClaimForm",
+  "version": 1,
+  "jsonSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "properties": {
+      "date": {
+        "type": "string",
+        "format": "date"
+      },
+      "invoiceNumber": {
+        "type": "string"
+      },
+      "vendor": {
+        "type": "string"
+      },
+      "total": {
+        "type": "number"
+      }
+    }
+  },
+  "templateUI": {
+    "type": "VerticalLayout",
+    "elements": [
+      {
+        "type": "Control",
+        "scope": "#/properties/date",
+        "label": "Date",
+        "options": {
+          "readonly": true
+        }
+      },
+      {
+        "type": "Control",
+        "scope": "#/properties/invoiceNumber",
+        "label": "Invoice Number",
+        "options": {
+          "readonly": true
+        }
+      },
+      {
+        "type": "Control",
+        "scope": "#/properties/vendor",
+        "label": "Vendor",
+        "options": {
+          "multi": false,
+          "readonly": true
+        }
+      },
+      {
+        "type": "Control",
+        "scope": "#/properties/total",
+        "label": "Total",
+        "options": {}
+      }
+    ]
+  },
+  "tags": [
+    {
+      "key": "app",
+      "value": "ecommerce"
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "name": "hello",
+  "event": "kafka_confluent:confluent:orders",
+  "condition": "true",
+  "actions": [
+    {
+      "action": "start_workflow",
+      "start_workflow": {
+        "name": "consumer",
+        "version": 1,
+        "correlationId": "",
+        "input": {
+          "payload": "${$}",
+          "sv": "sva"
+        },
+        "taskToDomain": {},
+        "priority": 0,
+        "idempotencyKey": ""
+      },
+      "expandInlineJSON": false
+    }
+  ],
+  "active": true,
+  "evaluatorType": "javascript",
+  "createdBy": "app:d39091d4-95c6-4513-b4f3-dfaad75e0f08",
+  "tags": [
+    {
+      "key": "app",
+      "value": "ecommerce"
+    }
+  ],
+  "description": "hello",
+  "orgId": "0000"
+}

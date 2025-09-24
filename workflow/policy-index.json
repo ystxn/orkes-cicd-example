@@ -1,0 +1,183 @@
+{
+  "createTime": 1737431384858,
+  "updateTime": 1737432501439,
+  "name": "policy-index",
+  "description": "Index policies",
+  "version": 1,
+  "tasks": [
+    {
+      "name": "get_document",
+      "taskReferenceName": "get_document_ref",
+      "inputParameters": {
+        "mediaType": "application/pdf",
+        "url": "https://labs.yong.space/${workflow.input.document}.pdf"
+      },
+      "type": "GET_DOCUMENT",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "onStateChange": {},
+      "cacheConfig": {
+        "key": "${url}",
+        "ttlInSecond": 600
+      },
+      "permissive": false
+    },
+    {
+      "name": "chunker",
+      "taskReferenceName": "chunker_ref",
+      "inputParameters": {
+        "expression": "(() => {\n  const policy = $.input.substring(0, $.input.indexOf(' Policy'));\n  const context = 'This chunk is from the policy: ' + policy + '. ';\n  const paragraphs = $.input.split(/\\n/);\n  const chunks = [];\n  let currentChunk = \"\";\n  for (const paragraph of paragraphs) {\n    if (currentChunk.length + paragraph.length < 1000) {\n      currentChunk += (currentChunk ? \"\\n\\n\" : \"\") + paragraph;\n    } else {\n      if (currentChunk) {\n        chunks.push(context + currentChunk);\n      }\n      const lastChunk = chunks[chunks.length - 1] || \"\";\n      const overlapText = lastChunk.slice(-200);\n      currentChunk = overlapText + \"\\n\\n\" + paragraph;\n    }\n  }\n  if (currentChunk) {\n    chunks.push(context + currentChunk);\n  }\n  return chunks;\n})();",
+        "evaluatorType": "graaljs",
+        "input": "${get_document_ref.output.result}"
+      },
+      "type": "INLINE",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "onStateChange": {},
+      "permissive": false
+    },
+    {
+      "name": "looper",
+      "taskReferenceName": "looper_ref",
+      "inputParameters": {
+        "chunks": "${chunker_ref.output.result}"
+      },
+      "type": "DO_WHILE",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopCondition": "(function () {\r\n  return $.looper_ref['iteration'] < $.chunks.length;\r\n})();",
+      "loopOver": [
+        {
+          "name": "get-batch",
+          "taskReferenceName": "get-batch_ref",
+          "inputParameters": {
+            "expression": "(function () {\n  const base = ($.iteration - 1) * 10;\n  return $.chunks.slice(base, base + 10);\n})();",
+            "evaluatorType": "graaljs",
+            "iteration": "${looper_ref.output.iteration}",
+            "chunks": "${chunker_ref.output.result}"
+          },
+          "type": "INLINE",
+          "decisionCases": {},
+          "defaultCase": [],
+          "forkTasks": [],
+          "startDelay": 0,
+          "joinOn": [],
+          "optional": false,
+          "defaultExclusiveJoinTask": [],
+          "asyncComplete": false,
+          "loopOver": [],
+          "onStateChange": {},
+          "permissive": false
+        },
+        {
+          "name": "transform-dynamic",
+          "taskReferenceName": "transform-dynamic_ref",
+          "inputParameters": {
+            "expression": "(function () {\n  return $.batch.map((chunk, i) => ({\n    \"embeddingModelProvider\": \"openai\",\n    \"embeddingModel\": \"text-embedding-3-small\",\n    \"vectorDB\": \"pinecone\",\n    \"index\": \"policy\",\n    \"namespace\": \"policy\",\n    \"text\": chunk,\n    \"docId\": $.title + $.iteration * 10 + i,\n  }));\n})();",
+            "evaluatorType": "graaljs",
+            "batch": "${get-batch_ref.output.result}",
+            "iteration": "${looper_ref.output.iteration}",
+            "title": "${workflow.input.document}"
+          },
+          "type": "INLINE",
+          "decisionCases": {},
+          "defaultCase": [],
+          "forkTasks": [],
+          "startDelay": 0,
+          "joinOn": [],
+          "optional": false,
+          "defaultExclusiveJoinTask": [],
+          "asyncComplete": false,
+          "loopOver": [],
+          "onStateChange": {},
+          "permissive": false
+        },
+        {
+          "name": "dynamic-index",
+          "taskReferenceName": "dynamic-index_ref",
+          "inputParameters": {
+            "forkTaskName": "LLM_INDEX_TEXT",
+            "forkTaskInputs": "${transform-dynamic_ref.output.result}"
+          },
+          "type": "FORK_JOIN_DYNAMIC",
+          "decisionCases": {},
+          "dynamicForkTasksParam": "dynamicTasks",
+          "dynamicForkTasksInputParamName": "dynamicTasksInput",
+          "defaultCase": [],
+          "forkTasks": [],
+          "startDelay": 0,
+          "joinOn": [],
+          "optional": false,
+          "defaultExclusiveJoinTask": [],
+          "asyncComplete": false,
+          "loopOver": [],
+          "onStateChange": {},
+          "permissive": false
+        },
+        {
+          "name": "dynamic-index-join",
+          "taskReferenceName": "dynamic-index-join_ref",
+          "inputParameters": {},
+          "type": "JOIN",
+          "decisionCases": {},
+          "defaultCase": [],
+          "forkTasks": [],
+          "startDelay": 0,
+          "joinOn": [],
+          "optional": false,
+          "defaultExclusiveJoinTask": [],
+          "asyncComplete": false,
+          "loopOver": [],
+          "onStateChange": {},
+          "permissive": false
+        }
+      ],
+      "evaluatorType": "graaljs",
+      "onStateChange": {},
+      "permissive": false
+    }
+  ],
+  "inputParameters": [
+    "document"
+  ],
+  "outputParameters": {},
+  "failureWorkflow": "",
+  "schemaVersion": 2,
+  "restartable": true,
+  "workflowStatusListenerEnabled": false,
+  "ownerEmail": "yongsheng.tan@orkes.io",
+  "timeoutPolicy": "ALERT_ONLY",
+  "timeoutSeconds": 0,
+  "variables": {},
+  "inputTemplate": {},
+  "enforceSchema": true,
+  "metadata": {},
+  "maskedFields": [],
+  "overwriteTags": true,
+  "tags": [
+    {
+      "key": "app",
+      "value": "rag"
+    }
+  ]
+}

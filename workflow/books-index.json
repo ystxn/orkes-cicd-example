@@ -1,0 +1,276 @@
+{
+  "createTime": 1728706493305,
+  "updateTime": 1758693965291,
+  "name": "books-index",
+  "description": "Index books",
+  "version": 1,
+  "tasks": [
+    {
+      "name": "get-book",
+      "taskReferenceName": "get-book_ref",
+      "inputParameters": {
+        "uri": "https://www.gutenberg.org/ebooks/${workflow.input.bookId}.txt.utf-8",
+        "method": "GET",
+        "accept": "text/plain",
+        "contentType": "text/plain",
+        "encode": true
+      },
+      "type": "HTTP",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "onStateChange": {},
+      "cacheConfig": {
+        "key": "${uri}",
+        "ttlInSecond": 600
+      },
+      "permissive": false
+    },
+    {
+      "name": "cleaner",
+      "taskReferenceName": "cleaner_ref",
+      "inputParameters": {
+        "expression": "(function () {\n  const startPattern = /\\*\\*\\* START OF THE PROJECT GUTENBERG EBOOK .+?\\r\\n/;\n  const match = $.input.match(startPattern);\n  let text = match ? $.input.substring(match.index + match[0].length) : $.input;\n  const lastIndex = text.lastIndexOf('*** END OF THE PROJECT GUTENBERG EBOOK');\n  text = (lastIndex === -1 ? text : text.slice(0, lastIndex)).trim();\n  return text.replace(/\\n{2,}/g, '\\n').replace(/ {2,}/g, ' ');\n})();",
+        "evaluatorType": "graaljs",
+        "input": "${get-book_ref.output.response.body}"
+      },
+      "type": "INLINE",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "onStateChange": {},
+      "permissive": false
+    },
+    {
+      "name": "chunker",
+      "taskReferenceName": "chunker_ref",
+      "inputParameters": {
+        "expression": "const context = 'This chunk is from the book: ' + $.bookTitle + '. ';\n(function () {\n  // Split the text into paragraphs\n  const paragraphs = $.input.split(/\\n\\s*\\n/);\n  \n  const chunks = [];\n  let currentChunk = \"\";\n\n  for (const paragraph of paragraphs) {\n    if (currentChunk.length + paragraph.length < 1000) {\n      currentChunk += (currentChunk ? \"\\n\\n\" : \"\") + paragraph;\n    } else {\n      // If adding this paragraph would exceed maxChunkSize, store the current chunk\n      if (currentChunk) {\n        chunks.push(context + currentChunk);\n      }\n      // Start a new chunk with overlap\n      const lastChunk = chunks[chunks.length - 1] || \"\";\n      const overlapText = lastChunk.slice(-200);\n      currentChunk = overlapText + \"\\n\\n\" + paragraph;\n    }\n  }\n\n  // Add the last chunk if it's not empty\n  if (currentChunk) {\n    chunks.push(context + currentChunk);\n  }\n\n  return chunks;\n})();",
+        "evaluatorType": "graaljs",
+        "input": "${cleaner_ref.output.result}",
+        "bookTitle": "${workflow.input.bookTitle}"
+      },
+      "type": "INLINE",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "onStateChange": {},
+      "permissive": false
+    },
+    {
+      "name": "looper",
+      "taskReferenceName": "looper_ref",
+      "inputParameters": {
+        "chunks": "${chunker_ref.output.result}"
+      },
+      "type": "DO_WHILE",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopCondition": "(function () {\r\n  const limit = Math.min(Math.ceil($.chunks.length/10), 15);\r\n  return $.looper_ref['iteration'] < limit;\r\n})();",
+      "loopOver": [
+        {
+          "name": "get-batch",
+          "taskReferenceName": "get-batch_ref",
+          "inputParameters": {
+            "expression": "(function () {\n  const base = ($.iteration - 1) * 10;\n  return $.chunks.slice(base, base + 10);\n})();",
+            "evaluatorType": "graaljs",
+            "iteration": "${looper_ref.output.iteration}",
+            "chunks": "${chunker_ref.output.result}",
+            "title": "${workflow.input.bookTitle}"
+          },
+          "type": "INLINE",
+          "decisionCases": {},
+          "defaultCase": [],
+          "forkTasks": [],
+          "startDelay": 0,
+          "joinOn": [],
+          "optional": false,
+          "defaultExclusiveJoinTask": [],
+          "asyncComplete": false,
+          "loopOver": [],
+          "onStateChange": {},
+          "permissive": false
+        },
+        {
+          "name": "fork",
+          "taskReferenceName": "fork_ref",
+          "inputParameters": {},
+          "type": "FORK_JOIN",
+          "decisionCases": {},
+          "defaultCase": [],
+          "forkTasks": [
+            [
+              {
+                "name": "index-bm25",
+                "taskReferenceName": "index-bm25_ref",
+                "inputParameters": {
+                  "uri": "https://labs.yong.space/bm25/index",
+                  "method": "POST",
+                  "accept": "application/json",
+                  "contentType": "application/json",
+                  "encode": false,
+                  "body": "${get-batch_ref.output.result}"
+                },
+                "type": "HTTP",
+                "decisionCases": {},
+                "defaultCase": [],
+                "forkTasks": [],
+                "startDelay": 0,
+                "joinOn": [],
+                "optional": false,
+                "defaultExclusiveJoinTask": [],
+                "asyncComplete": false,
+                "loopOver": [],
+                "onStateChange": {},
+                "permissive": false
+              }
+            ],
+            [
+              {
+                "name": "transform-dynamic",
+                "taskReferenceName": "transform-dynamic_ref",
+                "inputParameters": {
+                  "expression": "(function () {\n  return $.batch.map((chunk, i) => ({\n    \"embeddingModelProvider\": \"openai\",\n    \"embeddingModel\": \"text-embedding-3-small\",\n    \"vectorDB\": \"pinecone\",\n    \"index\": \"books\",\n    \"namespace\": \"books\",\n    \"text\": chunk,\n    \"dimensions\": 1536,\n    \"docId\": $.title + $.iteration * 10 + i,\n  }));\n})();",
+                  "evaluatorType": "graaljs",
+                  "batch": "${get-batch_ref.output.result}",
+                  "title": "${workflow.input.bookTitle}",
+                  "iteration": "${looper_ref.output.iteration}"
+                },
+                "type": "INLINE",
+                "decisionCases": {},
+                "defaultCase": [],
+                "forkTasks": [],
+                "startDelay": 0,
+                "joinOn": [],
+                "optional": false,
+                "defaultExclusiveJoinTask": [],
+                "asyncComplete": false,
+                "loopOver": [],
+                "onStateChange": {},
+                "permissive": false
+              },
+              {
+                "name": "dynamic-index",
+                "taskReferenceName": "dynamic-index_ref",
+                "inputParameters": {
+                  "forkTaskName": "LLM_INDEX_TEXT",
+                  "forkTaskInputs": "${transform-dynamic_ref.output.result}"
+                },
+                "type": "FORK_JOIN_DYNAMIC",
+                "decisionCases": {},
+                "dynamicForkTasksParam": "dynamicTasks",
+                "dynamicForkTasksInputParamName": "dynamicTasksInput",
+                "defaultCase": [],
+                "forkTasks": [],
+                "startDelay": 0,
+                "joinOn": [],
+                "optional": false,
+                "defaultExclusiveJoinTask": [],
+                "asyncComplete": false,
+                "loopOver": [],
+                "onStateChange": {},
+                "permissive": false
+              },
+              {
+                "name": "dynamic-index-join",
+                "taskReferenceName": "dynamic-index-join_ref",
+                "inputParameters": {},
+                "type": "JOIN",
+                "decisionCases": {},
+                "defaultCase": [],
+                "forkTasks": [],
+                "startDelay": 0,
+                "joinOn": [],
+                "optional": false,
+                "defaultExclusiveJoinTask": [],
+                "asyncComplete": false,
+                "loopOver": [],
+                "onStateChange": {},
+                "permissive": false
+              }
+            ]
+          ],
+          "startDelay": 0,
+          "joinOn": [],
+          "optional": false,
+          "defaultExclusiveJoinTask": [],
+          "asyncComplete": false,
+          "loopOver": [],
+          "onStateChange": {},
+          "permissive": false
+        },
+        {
+          "name": "join",
+          "taskReferenceName": "join_ref",
+          "inputParameters": {},
+          "type": "JOIN",
+          "decisionCases": {},
+          "defaultCase": [],
+          "forkTasks": [],
+          "startDelay": 0,
+          "joinOn": [
+            "dynamic-index-join_ref",
+            "index-bm25_ref"
+          ],
+          "optional": false,
+          "defaultExclusiveJoinTask": [],
+          "asyncComplete": false,
+          "loopOver": [],
+          "onStateChange": {},
+          "permissive": false
+        }
+      ],
+      "evaluatorType": "graaljs",
+      "onStateChange": {},
+      "permissive": false
+    }
+  ],
+  "inputParameters": [
+    "bookId",
+    "bookTitle"
+  ],
+  "outputParameters": {},
+  "failureWorkflow": "",
+  "schemaVersion": 2,
+  "restartable": true,
+  "workflowStatusListenerEnabled": false,
+  "ownerEmail": "yongsheng.tan@orkes.io",
+  "timeoutPolicy": "ALERT_ONLY",
+  "timeoutSeconds": 0,
+  "variables": {},
+  "inputTemplate": {},
+  "enforceSchema": true,
+  "metadata": {},
+  "maskedFields": [],
+  "overwriteTags": true,
+  "tags": [
+    {
+      "key": "app",
+      "value": "rag"
+    }
+  ]
+}

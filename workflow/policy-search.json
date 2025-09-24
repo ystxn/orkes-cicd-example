@@ -1,0 +1,91 @@
+{
+  "createTime": 1737433116487,
+  "updateTime": 1756458580924,
+  "name": "policy-search",
+  "description": "Search LLM given context of indexed data",
+  "version": 2,
+  "tasks": [
+    {
+      "name": "search-index",
+      "taskReferenceName": "search-index_ref",
+      "inputParameters": {
+        "maxResults": 10,
+        "vectorDB": "pinecone",
+        "index": "policy",
+        "namespace": "policy",
+        "embeddingModelProvider": "openai",
+        "embeddingModel": "text-embedding-3-small",
+        "query": "${workflow.input.query}",
+        "dimensions": 1536
+      },
+      "type": "LLM_SEARCH_INDEX",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "onStateChange": {},
+      "cacheConfig": {
+        "key": "${query}",
+        "ttlInSecond": 60
+      },
+      "permissive": false
+    },
+    {
+      "name": "get-contextual-answer",
+      "taskReferenceName": "get-contextual-answer_ref",
+      "inputParameters": {
+        "llmProvider": "openai",
+        "model": "gpt-4o-mini",
+        "promptName": "search-with-context",
+        "promptVariables": {
+          "question": "${workflow.input.query}",
+          "context": "${search-index_ref.output.result}"
+        }
+      },
+      "type": "LLM_TEXT_COMPLETE",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "onStateChange": {},
+      "cacheConfig": {
+        "key": "${promptVariables}",
+        "ttlInSecond": 60
+      },
+      "permissive": false
+    }
+  ],
+  "inputParameters": [
+    "query"
+  ],
+  "outputParameters": {},
+  "failureWorkflow": "",
+  "schemaVersion": 2,
+  "restartable": true,
+  "workflowStatusListenerEnabled": false,
+  "ownerEmail": "yongsheng.tan@orkes.io",
+  "timeoutPolicy": "ALERT_ONLY",
+  "timeoutSeconds": 0,
+  "variables": {},
+  "inputTemplate": {},
+  "enforceSchema": true,
+  "metadata": {},
+  "maskedFields": [],
+  "overwriteTags": true,
+  "tags": [
+    {
+      "key": "app",
+      "value": "rag"
+    }
+  ]
+}

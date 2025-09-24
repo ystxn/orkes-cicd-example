@@ -1,0 +1,89 @@
+{
+  "createTime": 1737432776546,
+  "updateTime": 1737433008751,
+  "name": "policy-index-launcher",
+  "description": "policy-index-launcher",
+  "version": 1,
+  "tasks": [
+    {
+      "name": "documents",
+      "taskReferenceName": "documents_ref",
+      "inputParameters": {
+        "expression": "(() => ([\n    \"AcceptableUsePolicy\",\n    \"AssetManagementPolicy\",\n    \"BackupPolicy\",\n    \"BusinessContinuityPlan\",\n    \"DataClassificationPolicy\",\n    \"DataProtectionPolicy\",\n    \"DataRetentionPolicy\",\n    \"DisasterRecoveryPlan\",\n    \"EncryptionPolicy\",\n    \"IncidentResponsePlan\",\n    \"InformationSecurityPolicy\",\n    \"PasswordPolicy\",\n    \"PhysicalSecurityPolicy\",\n    \"ResponsibleDisclosurePolicy\",\n    \"RiskAssessmentPolicy\",\n    \"SoftwareDevelopmentLifeCyclePolicy\",\n    \"SystemAccessControlPolicy\",\n    \"VendorManagementPolicy\",\n    \"VulnerabilityManagementPolicy\",\n  ].map((document) => ({ document }))\n))();",
+        "evaluatorType": "graaljs"
+      },
+      "type": "INLINE",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "onStateChange": {},
+      "permissive": false
+    },
+    {
+      "name": "fork_join_dynamic",
+      "taskReferenceName": "fork_join_dynamic_ref",
+      "inputParameters": {
+        "forkTaskWorkflow": "policy-index",
+        "forkTaskInputs": "${documents_ref.output.result}"
+      },
+      "type": "FORK_JOIN_DYNAMIC",
+      "decisionCases": {},
+      "dynamicForkTasksParam": "forkTaskWorkflow",
+      "dynamicForkTasksInputParamName": "forkTaskInputs",
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "onStateChange": {},
+      "permissive": false
+    },
+    {
+      "name": "join",
+      "taskReferenceName": "join_ref",
+      "inputParameters": {},
+      "type": "JOIN",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "onStateChange": {},
+      "permissive": false
+    }
+  ],
+  "inputParameters": [],
+  "outputParameters": {},
+  "failureWorkflow": "",
+  "schemaVersion": 2,
+  "restartable": true,
+  "workflowStatusListenerEnabled": false,
+  "ownerEmail": "yongsheng.tan@orkes.io",
+  "timeoutPolicy": "ALERT_ONLY",
+  "timeoutSeconds": 0,
+  "variables": {},
+  "inputTemplate": {},
+  "enforceSchema": true,
+  "metadata": {},
+  "maskedFields": [],
+  "overwriteTags": true,
+  "tags": [
+    {
+      "key": "app",
+      "value": "rag"
+    }
+  ]
+}

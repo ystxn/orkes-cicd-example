@@ -1,0 +1,26 @@
+{
+  "createTime": 1710921522052,
+  "updateTime": 1728744327111,
+  "createdBy": "yongsheng.tan@orkes.io",
+  "updatedBy": "yongsheng.tan@orkes.io",
+  "name": "search-with-context",
+  "template": "Answer the question directly based on the context provided.\nDo not repeat the question.\nDo not mention the existence of any context provided.\n\n<context>\n${context}\n</context>\n\n<question>\n${question}\n</question>\n",
+  "description": "Perform a search given a context",
+  "variables": [
+    "question",
+    "context"
+  ],
+  "integrations": [
+    "openai:gpt-4o",
+    "openai:gpt-4o-mini",
+    "anthropic:claude-3-5-sonnet-20240620",
+    "anthropic:claude-3-haiku-20240307"
+  ],
+  "tags": [
+    {
+      "key": "app",
+      "value": "rag"
+    }
+  ],
+  "version": 1
+}

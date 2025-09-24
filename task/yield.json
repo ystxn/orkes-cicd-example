@@ -25,12 +25,8 @@
   "overwriteTags": true,
   "tags": [
     {
-      "key": "example",
-      "value": "swimlanes"
-    },
-    {
       "key": "app",
-      "value": "ecommerce"
+      "value": "onboarding"
     }
   ]
 }

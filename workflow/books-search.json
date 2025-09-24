@@ -1,0 +1,210 @@
+{
+  "createTime": 1737342503227,
+  "updateTime": 1755759770123,
+  "name": "books-search",
+  "description": "Search LLM given context of indexed data",
+  "version": 2,
+  "tasks": [
+    {
+      "name": "fork",
+      "taskReferenceName": "fork_ref",
+      "inputParameters": {},
+      "type": "FORK_JOIN",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [
+        [
+          {
+            "name": "search-bm25",
+            "taskReferenceName": "search-bm25_ref",
+            "inputParameters": {
+              "uri": "https://labs.yong.space/bm25/query?q=${workflow.input.query}",
+              "method": "GET",
+              "accept": "application/json",
+              "contentType": "application/json",
+              "encode": true
+            },
+            "type": "HTTP",
+            "decisionCases": {},
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "onStateChange": {},
+            "cacheConfig": {
+              "key": "${uri}",
+              "ttlInSecond": 600
+            },
+            "permissive": false
+          }
+        ],
+        [
+          {
+            "name": "search-news-index",
+            "taskReferenceName": "search-news-index_ref",
+            "inputParameters": {
+              "maxResults": 10,
+              "vectorDB": "pinecone",
+              "index": "books",
+              "namespace": "books",
+              "embeddingModelProvider": "openai",
+              "embeddingModel": "text-embedding-3-small",
+              "query": "${workflow.input.query}",
+              "dimensions": 1536
+            },
+            "type": "LLM_SEARCH_INDEX",
+            "decisionCases": {},
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "onStateChange": {},
+            "cacheConfig": {
+              "key": "${query}",
+              "ttlInSecond": 600
+            },
+            "permissive": false
+          }
+        ]
+      ],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "onStateChange": {},
+      "permissive": false
+    },
+    {
+      "name": "join",
+      "taskReferenceName": "join_ref",
+      "inputParameters": {},
+      "type": "JOIN",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [
+        "search-bm25_ref",
+        "search-news-index_ref"
+      ],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "onStateChange": {},
+      "permissive": false
+    },
+    {
+      "name": "transform",
+      "taskReferenceName": "transform_ref",
+      "inputParameters": {
+        "expression": "(function () {\n  return [\n    ...$.data1.map(i => i.text),\n    ...$.data2.map(i => i.text)\n  ]\n})();",
+        "evaluatorType": "graaljs",
+        "data1": "${search-news-index_ref.output.result}",
+        "data2": "${search-bm25_ref.output.response.body}"
+      },
+      "type": "INLINE",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "onStateChange": {},
+      "permissive": false
+    },
+    {
+      "name": "reranker",
+      "taskReferenceName": "reranker_ref",
+      "inputParameters": {
+        "uri": "https://labs.yong.space/bm25/rerank",
+        "method": "POST",
+        "accept": "application/json",
+        "contentType": "application/json",
+        "encode": true,
+        "headers": {},
+        "body": {
+          "query": "${workflow.input.query}",
+          "data": "${transform_ref.output.result}"
+        }
+      },
+      "type": "HTTP",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "onStateChange": {},
+      "cacheConfig": {
+        "key": "${body}",
+        "ttlInSecond": 600
+      },
+      "permissive": false
+    },
+    {
+      "name": "get-contextual-answer",
+      "taskReferenceName": "get-contextual-answer_ref",
+      "inputParameters": {
+        "llmProvider": "openai",
+        "model": "gpt-4o-mini",
+        "promptName": "search-with-context",
+        "promptVariables": {
+          "question": "${workflow.input.query}",
+          "context": "${reranker_ref.output.response.body}"
+        }
+      },
+      "type": "LLM_TEXT_COMPLETE",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "onStateChange": {},
+      "permissive": false
+    }
+  ],
+  "inputParameters": [
+    "query"
+  ],
+  "outputParameters": {},
+  "failureWorkflow": "",
+  "schemaVersion": 2,
+  "restartable": true,
+  "workflowStatusListenerEnabled": false,
+  "ownerEmail": "yongsheng.tan@orkes.io",
+  "timeoutPolicy": "ALERT_ONLY",
+  "timeoutSeconds": 0,
+  "variables": {},
+  "inputTemplate": {},
+  "enforceSchema": true,
+  "metadata": {},
+  "maskedFields": [],
+  "overwriteTags": true,
+  "tags": [
+    {
+      "key": "app",
+      "value": "rag"
+    }
+  ]
+}

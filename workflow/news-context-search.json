@@ -1,0 +1,87 @@
+{
+  "createTime": 1710921819597,
+  "updateTime": 1755759740129,
+  "name": "news-context-search",
+  "description": "Search LLM given context of indexed data",
+  "version": 1,
+  "tasks": [
+    {
+      "name": "search-news-index",
+      "taskReferenceName": "search-news-index_ref",
+      "inputParameters": {
+        "maxResults": 10,
+        "vectorDB": "pinecone",
+        "index": "news-small",
+        "namespace": "news-small",
+        "embeddingModelProvider": "openai",
+        "embeddingModel": "text-embedding-3-small",
+        "query": "${workflow.input.query}",
+        "dimensions": 1536
+      },
+      "type": "LLM_SEARCH_INDEX",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "onStateChange": {},
+      "cacheConfig": {
+        "key": "${query}",
+        "ttlInSecond": 60
+      },
+      "permissive": false
+    },
+    {
+      "name": "get-contextual-answer",
+      "taskReferenceName": "get-contextual-answer_ref",
+      "inputParameters": {
+        "llmProvider": "openai",
+        "model": "gpt-4o-mini",
+        "promptName": "search-with-context",
+        "promptVariables": {
+          "question": "${workflow.input.query}",
+          "context": "${search-news-index_ref.output.result}"
+        }
+      },
+      "type": "LLM_TEXT_COMPLETE",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "onStateChange": {},
+      "permissive": false
+    }
+  ],
+  "inputParameters": [
+    "query"
+  ],
+  "outputParameters": {},
+  "failureWorkflow": "",
+  "schemaVersion": 2,
+  "restartable": true,
+  "workflowStatusListenerEnabled": false,
+  "ownerEmail": "yongsheng.tan@orkes.io",
+  "timeoutPolicy": "ALERT_ONLY",
+  "timeoutSeconds": 0,
+  "variables": {},
+  "inputTemplate": {},
+  "enforceSchema": true,
+  "metadata": {},
+  "maskedFields": [],
+  "overwriteTags": true,
+  "tags": [
+    {
+      "key": "app",
+      "value": "rag"
+    }
+  ]
+}

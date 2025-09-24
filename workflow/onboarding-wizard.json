@@ -1,0 +1,268 @@
+{
+  "createTime": 1736822453631,
+  "updateTime": 1737342041982,
+  "name": "onboarding-wizard",
+  "description": "onboarding-wizard",
+  "version": 1,
+  "tasks": [
+    {
+      "name": "validate-stage-1",
+      "taskReferenceName": "validate-stage-1_ref",
+      "inputParameters": {
+        "expression": "(() => {\r\n  const isValidated = $.firstName.toLowerCase() !== 'john';\r\n  const message = isValidated ? \"OK\" : \"Name cannot be john\";\r\n  const stage = isValidated ? 2 : 1;\r\n  return { isValidated, message, stage };\r\n})();",
+        "evaluatorType": "graaljs",
+        "firstName": "${workflow.input.firstName}",
+        "lastName": "${workflow.input.lastName}",
+        "email": "${workflow.input.email}"
+      },
+      "type": "INLINE",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "onStateChange": {},
+      "permissive": false
+    },
+    {
+      "name": "set-var-stage-1",
+      "taskReferenceName": "set-var-stage-1_ref",
+      "inputParameters": {
+        "isValidated": "${validate-stage-1_ref.output.result.isValidated}",
+        "message": "${validate-stage-1_ref.output.result.message}",
+        "stage": "${validate-stage-1_ref.output.result.stage}"
+      },
+      "type": "SET_VARIABLE",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "onStateChange": {},
+      "permissive": false
+    },
+    {
+      "name": "stage-2-loop",
+      "taskReferenceName": "stage-2-loop_ref",
+      "inputParameters": {
+        "isValid": "${workflow.variables.isValidated}"
+      },
+      "type": "DO_WHILE",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopCondition": "(() => !$.isValid)();",
+      "loopOver": [
+        {
+          "name": "yield",
+          "taskReferenceName": "yield-stage-2",
+          "inputParameters": {
+            "isValidated": "${workflow.variables.isValidated}",
+            "message": "${workflow.variables.message}",
+            "stage": "${workflow.variables.stage}"
+          },
+          "type": "YIELD",
+          "decisionCases": {},
+          "defaultCase": [],
+          "forkTasks": [],
+          "startDelay": 0,
+          "joinOn": [],
+          "optional": false,
+          "taskDefinition": {
+            "createTime": 0,
+            "updateTime": 0,
+            "retryCount": 0,
+            "timeoutSeconds": 0,
+            "inputKeys": [],
+            "outputKeys": [],
+            "timeoutPolicy": "TIME_OUT_WF",
+            "retryLogic": "FIXED",
+            "retryDelaySeconds": 60,
+            "responseTimeoutSeconds": 0,
+            "inputTemplate": {},
+            "rateLimitPerFrequency": 0,
+            "rateLimitFrequencyInSeconds": 1,
+            "pollTimeoutSeconds": 0,
+            "backoffScaleFactor": 1,
+            "totalTimeoutSeconds": 0,
+            "inputSchema": {
+              "createTime": 0,
+              "updateTime": 0,
+              "name": "onboarding-step2",
+              "version": 1,
+              "type": "JSON"
+            },
+            "enforceSchema": true
+          },
+          "defaultExclusiveJoinTask": [],
+          "asyncComplete": false,
+          "loopOver": [],
+          "onStateChange": {},
+          "permissive": false
+        },
+        {
+          "name": "validate-stage-2",
+          "taskReferenceName": "validate-stage-2_ref",
+          "inputParameters": {
+            "expression": "(() => {\r\n  const isValidated = parseInt($.employees) > 10;\r\n  const message = isValidated ? \"OK\" : \"Employees need to be more than 10\";\r\n  const stage = isValidated ? 3 : 2;\r\n  return { isValidated, message, stage };\r\n})();",
+            "evaluatorType": "graaljs",
+            "organisationId": "${yield-stage-2.output.organisationId}",
+            "organisationName": "${yield-stage-2.output.organisationName}",
+            "employees": "${yield-stage-2.output.employees}"
+          },
+          "type": "INLINE",
+          "decisionCases": {},
+          "defaultCase": [],
+          "forkTasks": [],
+          "startDelay": 0,
+          "joinOn": [],
+          "optional": false,
+          "defaultExclusiveJoinTask": [],
+          "asyncComplete": false,
+          "loopOver": [],
+          "onStateChange": {},
+          "permissive": false
+        },
+        {
+          "name": "set-var-stage-2",
+          "taskReferenceName": "set-var-stage-2_ref",
+          "inputParameters": {
+            "isValidated": "${validate-stage-2_ref.output.result.isValidated}",
+            "message": "${validate-stage-2_ref.output.result.message}",
+            "stage": "${validate-stage-2_ref.output.result.stage}"
+          },
+          "type": "SET_VARIABLE",
+          "decisionCases": {},
+          "defaultCase": [],
+          "forkTasks": [],
+          "startDelay": 0,
+          "joinOn": [],
+          "optional": false,
+          "defaultExclusiveJoinTask": [],
+          "asyncComplete": false,
+          "loopOver": [],
+          "onStateChange": {},
+          "permissive": false
+        }
+      ],
+      "evaluatorType": "graaljs",
+      "onStateChange": {},
+      "permissive": false
+    },
+    {
+      "name": "yield",
+      "taskReferenceName": "yield-stage-3",
+      "inputParameters": {
+        "isValidated": "${workflow.variables.isValidated}",
+        "message": "${workflow.variables.message}",
+        "stage": "${workflow.variables.stage}"
+      },
+      "type": "YIELD",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "taskDefinition": {
+        "createTime": 0,
+        "updateTime": 0,
+        "retryCount": 0,
+        "timeoutSeconds": 0,
+        "inputKeys": [],
+        "outputKeys": [],
+        "timeoutPolicy": "TIME_OUT_WF",
+        "retryLogic": "FIXED",
+        "retryDelaySeconds": 60,
+        "responseTimeoutSeconds": 0,
+        "inputTemplate": {},
+        "rateLimitPerFrequency": 0,
+        "rateLimitFrequencyInSeconds": 1,
+        "pollTimeoutSeconds": 0,
+        "backoffScaleFactor": 1,
+        "totalTimeoutSeconds": 0,
+        "inputSchema": {
+          "createTime": 0,
+          "updateTime": 0,
+          "name": "onboarding-step3",
+          "version": 1,
+          "type": "JSON"
+        },
+        "enforceSchema": true
+      },
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "onStateChange": {},
+      "permissive": false
+    },
+    {
+      "name": "process-result",
+      "taskReferenceName": "process-result_ref",
+      "inputParameters": {
+        "expression": "(() => {\n  const combined = {\n    ...$.stage1,\n    ...$.stage2,\n    ...$.stage3\n  };\n  return Object.keys(combined).reduce((acc, key) => {\n    if (!key.startsWith(\"_\")) {\n      acc[key] = combined[key];\n    }\n    return acc;\n  }, {});\n})()",
+        "evaluatorType": "graaljs",
+        "stage1": "${workflow.input}",
+        "stage2": "${yield-stage-2.output}",
+        "stage3": "${yield-stage-3.output}"
+      },
+      "type": "INLINE",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "onStateChange": {},
+      "permissive": false
+    }
+  ],
+  "inputParameters": [
+    "firstName",
+    "lastName",
+    "email"
+  ],
+  "outputParameters": {},
+  "failureWorkflow": "",
+  "schemaVersion": 2,
+  "restartable": true,
+  "workflowStatusListenerEnabled": false,
+  "ownerEmail": "yongsheng.tan@orkes.io",
+  "timeoutPolicy": "ALERT_ONLY",
+  "timeoutSeconds": 0,
+  "variables": {},
+  "inputTemplate": {},
+  "inputSchema": {
+    "createTime": 0,
+    "updateTime": 0,
+    "name": "onboarding-step1",
+    "version": 1,
+    "type": "JSON"
+  },
+  "enforceSchema": true,
+  "metadata": {},
+  "maskedFields": [],
+  "overwriteTags": true,
+  "tags": [
+    {
+      "key": "app",
+      "value": "onboarding"
+    }
+  ]
+}

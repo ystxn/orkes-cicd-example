@@ -1,0 +1,52 @@
+{
+  "createTime": 1721283626775,
+  "updateTime": 1721283626775,
+  "createdBy": "USER:yongsheng.tan@orkes.io",
+  "updatedBy": "USER:yongsheng.tan@orkes.io",
+  "name": "ExpenseApproval",
+  "version": 1,
+  "jsonSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "properties": {
+      "summary": {
+        "type": "string"
+      },
+      "response": {
+        "type": "string"
+      },
+      "approval": {
+        "type": "boolean"
+      }
+    }
+  },
+  "templateUI": {
+    "type": "VerticalLayout",
+    "elements": [
+      {
+        "type": "Control",
+        "scope": "#/properties/summary",
+        "label": "Expense Summary",
+        "options": {
+          "readonly": true
+        }
+      },
+      {
+        "type": "Control",
+        "scope": "#/properties/response",
+        "label": "Response"
+      },
+      {
+        "type": "Control",
+        "scope": "#/properties/approval",
+        "label": "Approve?",
+        "options": {}
+      }
+    ]
+  },
+  "tags": [
+    {
+      "key": "app",
+      "value": "approvals"
+    }
+  ]
+}

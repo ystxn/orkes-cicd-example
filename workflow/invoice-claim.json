@@ -1,0 +1,124 @@
+{
+  "createTime": 1738658470079,
+  "updateTime": 1738824927741,
+  "name": "invoice-claim",
+  "description": "invoice-claim",
+  "version": 1,
+  "tasks": [
+    {
+      "name": "assess-threshold",
+      "taskReferenceName": "assess-threshold_ref",
+      "inputParameters": {
+        "invoiceTotal": "${workflow.input.total}"
+      },
+      "type": "SWITCH",
+      "decisionCases": {
+        "APPROVAL_REQUIRED": [
+          {
+            "name": "invoice-approval",
+            "taskReferenceName": "invoice-approval_ref",
+            "inputParameters": {
+              "__humanTaskDefinition": {
+                "assignmentCompletionStrategy": "LEAVE_OPEN",
+                "assignments": [
+                  {
+                    "assignee": {
+                      "user": "LABS",
+                      "userType": "EXTERNAL_GROUP"
+                    },
+                    "slaMinutes": 0
+                  }
+                ],
+                "taskTriggers": [],
+                "userFormTemplate": {
+                  "name": "InvoiceClaimForm",
+                  "version": 1
+                },
+                "displayName": "Approve Invoice"
+              },
+              "date": "${workflow.input.date}",
+              "invoiceNumber": "${workflow.input.invoiceNumber}",
+              "vendor": "${workflow.input.vendor}",
+              "total": "${workflow.input.total}",
+              "items": "${workflow.input.items}"
+            },
+            "type": "HUMAN",
+            "decisionCases": {},
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "onStateChange": {},
+            "permissive": false
+          }
+        ]
+      },
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "evaluatorType": "graaljs",
+      "expression": "(function () {\n  return $.invoiceTotal >= 100 ? \"APPROVAL_REQUIRED\" : \"PASSTHROUGH\";\n}())",
+      "onStateChange": {},
+      "permissive": false
+    },
+    {
+      "name": "process-payment",
+      "taskReferenceName": "process-payment_ref",
+      "inputParameters": {
+        "uri": "https://orkes-api-tester.orkesconductor.com/api",
+        "method": "GET",
+        "accept": "application/json",
+        "contentType": "application/json",
+        "encode": true
+      },
+      "type": "HTTP",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "onStateChange": {},
+      "permissive": false
+    }
+  ],
+  "inputParameters": [
+    "date",
+    "invoiceNumber",
+    "vendor",
+    "total",
+    "items"
+  ],
+  "outputParameters": {},
+  "failureWorkflow": "",
+  "schemaVersion": 2,
+  "restartable": true,
+  "workflowStatusListenerEnabled": false,
+  "ownerEmail": "yongsheng.tan@orkes.io",
+  "timeoutPolicy": "ALERT_ONLY",
+  "timeoutSeconds": 0,
+  "variables": {},
+  "inputTemplate": {},
+  "enforceSchema": true,
+  "metadata": {},
+  "maskedFields": [],
+  "overwriteTags": true,
+  "tags": [
+    {
+      "key": "app",
+      "value": "approvals"
+    }
+  ]
+}

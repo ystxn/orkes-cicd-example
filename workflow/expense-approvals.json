@@ -1,0 +1,282 @@
+{
+  "createTime": 1721279716920,
+  "updateTime": 1721283715644,
+  "name": "expense-approvals",
+  "description": "expense-approvals",
+  "version": 1,
+  "tasks": [
+    {
+      "name": "fork",
+      "taskReferenceName": "fork_ref",
+      "inputParameters": {},
+      "type": "FORK_JOIN",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [
+        [
+          {
+            "name": "human",
+            "taskReferenceName": "human_ref_5",
+            "inputParameters": {
+              "__humanTaskDefinition": {
+                "assignmentCompletionStrategy": "LEAVE_OPEN",
+                "displayName": "Approve Expense",
+                "userFormTemplate": {
+                  "name": "ExpenseApproval",
+                  "version": 1
+                },
+                "assignments": [
+                  {
+                    "assignee": {
+                      "user": "LABS",
+                      "userType": "EXTERNAL_GROUP"
+                    },
+                    "slaMinutes": 0
+                  }
+                ],
+                "taskTriggers": [],
+                "summary": "Something goes here",
+                "response": "",
+                "private": false
+              },
+              "summary": "Marketing fees",
+              "response": "",
+              "approval": false
+            },
+            "type": "HUMAN",
+            "decisionCases": {},
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "onStateChange": {},
+            "permissive": false
+          }
+        ],
+        [
+          {
+            "name": "human",
+            "taskReferenceName": "human_ref_4",
+            "inputParameters": {
+              "__humanTaskDefinition": {
+                "assignmentCompletionStrategy": "LEAVE_OPEN",
+                "displayName": "Approve Expense",
+                "userFormTemplate": {
+                  "name": "ExpenseApproval",
+                  "version": 1
+                },
+                "assignments": [
+                  {
+                    "assignee": {
+                      "user": "LABS",
+                      "userType": "EXTERNAL_GROUP"
+                    },
+                    "slaMinutes": 0
+                  }
+                ],
+                "taskTriggers": [],
+                "summary": "Something goes here",
+                "response": "",
+                "private": false
+              },
+              "summary": "Taxi fare for airport transfer",
+              "response": "",
+              "approval": false
+            },
+            "type": "HUMAN",
+            "decisionCases": {},
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "onStateChange": {},
+            "permissive": false
+          }
+        ],
+        [
+          {
+            "name": "human",
+            "taskReferenceName": "human_ref_3",
+            "inputParameters": {
+              "__humanTaskDefinition": {
+                "assignmentCompletionStrategy": "LEAVE_OPEN",
+                "displayName": "Approve Expense",
+                "userFormTemplate": {
+                  "name": "ExpenseApproval",
+                  "version": 1
+                },
+                "assignments": [
+                  {
+                    "assignee": {
+                      "user": "LABS",
+                      "userType": "EXTERNAL_GROUP"
+                    },
+                    "slaMinutes": 0
+                  }
+                ],
+                "taskTriggers": []
+              },
+              "summary": "Printing costs for banners",
+              "response": "",
+              "approval": false
+            },
+            "type": "HUMAN",
+            "decisionCases": {},
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "onStateChange": {},
+            "permissive": false
+          }
+        ],
+        [
+          {
+            "name": "human",
+            "taskReferenceName": "human_ref_2",
+            "inputParameters": {
+              "__humanTaskDefinition": {
+                "assignmentCompletionStrategy": "LEAVE_OPEN",
+                "displayName": "Approve Expense",
+                "userFormTemplate": {
+                  "name": "ExpenseApproval",
+                  "version": 1
+                },
+                "assignments": [
+                  {
+                    "assignee": {
+                      "user": "LABS",
+                      "userType": "EXTERNAL_GROUP"
+                    },
+                    "slaMinutes": 0
+                  }
+                ],
+                "taskTriggers": []
+              },
+              "summary": "New laptop for onboarding",
+              "response": "",
+              "approval": false
+            },
+            "type": "HUMAN",
+            "decisionCases": {},
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "onStateChange": {},
+            "permissive": false
+          }
+        ],
+        [
+          {
+            "name": "human",
+            "taskReferenceName": "human_ref_1",
+            "inputParameters": {
+              "__humanTaskDefinition": {
+                "assignmentCompletionStrategy": "LEAVE_OPEN",
+                "displayName": "Approve Expense",
+                "userFormTemplate": {
+                  "name": "ExpenseApproval",
+                  "version": 1
+                },
+                "assignments": [
+                  {
+                    "assignee": {
+                      "user": "LABS",
+                      "userType": "EXTERNAL_GROUP"
+                    },
+                    "slaMinutes": 0
+                  }
+                ],
+                "taskTriggers": []
+              },
+              "summary": "Flight tickets to conference",
+              "response": "",
+              "approval": false
+            },
+            "type": "HUMAN",
+            "decisionCases": {},
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "onStateChange": {},
+            "permissive": false
+          }
+        ]
+      ],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "onStateChange": {},
+      "permissive": false
+    },
+    {
+      "name": "join",
+      "taskReferenceName": "join_ref",
+      "inputParameters": {},
+      "type": "JOIN",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [
+        "human_ref_1",
+        "human_ref_2",
+        "human_ref_3",
+        "human_ref_4",
+        "human_ref_5"
+      ],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "onStateChange": {},
+      "permissive": false
+    }
+  ],
+  "inputParameters": [],
+  "outputParameters": {},
+  "failureWorkflow": "",
+  "schemaVersion": 2,
+  "restartable": true,
+  "workflowStatusListenerEnabled": false,
+  "ownerEmail": "yongsheng.tan@orkes.io",
+  "timeoutPolicy": "ALERT_ONLY",
+  "timeoutSeconds": 0,
+  "variables": {},
+  "inputTemplate": {},
+  "enforceSchema": true,
+  "metadata": {},
+  "maskedFields": [],
+  "overwriteTags": true,
+  "tags": [
+    {
+      "key": "app",
+      "value": "approvals"
+    }
+  ]
+}
